@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"
+    <title>Jogo de Tenis Estilo Atari - Escotiel  </title>
+</head>
+<body>
+    <canvas id="folha" width="600" height="500"></canvas>
+
+    <script>
+
+        //quando a janela é carregada
+        window.onload = function(){
+            iniciar();
+            setInterval(principal, 1000/30); //0,03s --> 30fps
+        }
+
+        //inicia as variáveis globais (sem o var)
+        function iniciar(){
+            folhaDesenho = document.getElementById("folha");
+            areaDesenho = folhaDesenho.getContext("2d");
+
+            larguraCampo = 600;
+            alturaCampo = 500;
+            larguraLinha = 15;
+            larguraBola = 15;
+
+            espessuraRaquete = 15;
+            alturaRaquete = 100;
+            efeitoRaquete = 0.3;
+
+            posicaoBolaX = posicaoBolaY = 10;
+            velBolaX = velBolaY = 7;
+            posicaoJogador1 = posicaoJogador2 = alturaCampo/2-(alturaRaquete/2);
+            velocidadeJogador2 =6;
+            pontosJogador1 = pontosJogador2 =0;
+
+            //movimentar as raquetes com o mouse
+            folhaDesenho.addEventListener('mousemove', function (e) {
+                posicaoJogador1 = e.clientY - alturaRaquete/2;
+                //posicaoJogador2 = e.clientY - alturaRaquete/2;
+            });
+        }
+        function principal(){
+            desenhar();
+            calcular();
+        }
+        function desenhar() {
+            //janela do jogo
+            areaDesenho.fillStyle = "#286047";
+            areaDesenho.fillRect(0, 0, larguraCampo, alturaCampo);
+
+            //linha do meio
+            areaDesenho.fillStyle = "#FFFFFF";
+            areaDesenho.fillRect(larguraCampo / 2 - larguraBola / 2, 0, larguraLinha, alturaCampo);
+
+            //raquetes
+            areaDesenho.fillRect(0, posicaoJogador1, espessuraRaquete, alturaRaquete);
+            areaDesenho.fillRect(larguraCampo - espessuraRaquete, posicaoJogador2, espessuraRaquete, alturaRaquete);
+
+            //bola
+            areaDesenho.fillRect(posicaoBolaX - larguraBola / 2, posicaoBolaY - larguraBola / 2, larguraBola, larguraBola);
+            posicaoBolaX+=velBolaX;
+            posicaoBolaY+=velBolaY;
+
+            //escrever pontuação dos jogadores
+            areaDesenho.fillText("Jogador1: " +  pontosJogador1, 100,10);
+            areaDesenho.fillText("Jogador2: " +  pontosJogador2, 400,10);
+        }
+        function calcular() {
+
+             //colisao superior
+             if(posicaoBolaY<0 && velBolaY<0){
+                 velBolaY = -velBolaY;
+             }
+
+            //colisao inferior
+            if(posicaoBolaY>alturaCampo && velBolaY>0){
+                velBolaY = -velBolaY;
+            }
+
+            //verificar se o jogador1 fez ponto
+            if(posicaoBolaX>larguraCampo){
+                if(posicaoBolaY > posicaoJogador2 && posicaoBolaY < posicaoJogador2 + alturaRaquete){
+                    //rebater a bola
+                    velBolaX = -velBolaX;
+                    //se a bola bater na ponta da raquete, aumentar o ângulo (mexendo na velocidade e dando efeito)
+                    var diferencaY = posicaoBolaY - (posicaoJogador2+alturaRaquete/2);
+                    velBolaY = diferencaY * efeitoRaquete;
+                }else{
+                    //pontos jogador1
+                    pontosJogador1++;
+                    continuar();
+                }
+            }
+
+            //verificar se o jogador2 fez ponto
+            if(posicaoBolaX<0){
+                if(posicaoBolaY > posicaoJogador1 && posicaoBolaY < posicaoJogador1 + alturaRaquete){
+                    //rebater a bola
+                    velBolaX = -velBolaX;
+                    //se a bola bater na ponta da raquete, aumentar o ângulo (mexendo na velocidade e dando efeito)
+                    var diferencaY = posicaoBolaY - (posicaoJogador1+alturaRaquete/2);
+                    velBolaY = diferencaY * efeitoRaquete;
+                }else{
+                    //pontos jogador2
+                    pontosJogador2++;
+                    continuar();
+                }
+            }
+
+            //moivmentação do jogador 2 (Inteligência Artificial
+            if(posicaoJogador2+alturaRaquete/2 < posicaoBolaY){
+                posicaoJogador2+=velocidadeJogador2;
+            }else{
+                posicaoJogador2-=velocidadeJogador2;
+            }
+
+        }
+        function continuar(){
+            //colocar a bola no centro
+            posicaoBolaX = larguraCampo/2;
+            posicaoBolaY = alturaCampo/2;
+            velBolaX =-velBolaX;
+            velBolaY=3;
+        }
+    </script>
+</body>
+</html>
